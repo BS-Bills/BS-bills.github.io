@@ -245,16 +245,16 @@
         }
         
         .sr-col {
-            width: 15%;
+            width: 12%;
             text-align: center;
         }
         
         .details-col {
-            width: 55%;
+            width: 65%;
         }
         
         .amount-col {
-            width: 30%;
+            width: 23%;
             text-align: center;
         }
         
@@ -280,7 +280,7 @@
         
         .amount-input {
             font-family: Arial, sans-serif;
-            width: 100px;
+            width: 85px;
             border: 1px solid #999;
             padding: 3px 4px;
             text-align: center;
@@ -316,8 +316,18 @@
             background-color: #f9f9f9;
         }
         
-        .total-row {
+        .subtotal-row {
             background-color: #e8f5e8;
+            font-weight: bold;
+        }
+        
+        .fee-received-row {
+            background-color: #fff3cd;
+            font-weight: bold;
+        }
+        
+        .total-row {
+            background-color: #ffebee;
             font-weight: bold;
         }
         
@@ -418,15 +428,15 @@
             }
             
             .sr-col {
-                width: 12%;
+                width: 10%;
             }
             
             .details-col {
-                width: 50%;
+                width: 60%;
             }
             
             .amount-col {
-                width: 38%;
+                width: 30%;
             }
             
             .service-desc-textarea {
@@ -435,7 +445,7 @@
             }
             
             .amount-input {
-                width: 90px;
+                width: 75px;
             }
             
             .print-button {
@@ -687,9 +697,25 @@
                         </div>
                     </td>
                 </tr>
+                <tr class="subtotal-row" id="subtotalRow" style="display: none;">
+                    <td class="sr-col" id="subtotalSrNo">02</td>
+                    <td class="details-col"><strong>Sub Total</strong></td>
+                    <td class="amount-col">
+                        <div class="calculated-amount" id="subtotalAmount"><strong>50,000=00</strong></div>
+                    </td>
+                </tr>
+                <tr class="fee-received-row">
+                    <td class="sr-col" id="feeReceivedSrNo">02</td>
+                    <td class="details-col"><strong>Fees Received</strong></td>
+                    <td class="amount-col">
+                        <div class="amount-wrapper">
+                            <input type="text" class="amount-input" id="feeReceivedAmount" value="0=00" onchange="formatAmountInput(this); calculateTotals()" oninput="formatAmountInput(this)">
+                        </div>
+                    </td>
+                </tr>
                 <tr class="total-row">
-                    <td class="sr-col" id="totalSrNo">02</td>
-                    <td class="details-col"><strong>Total</strong></td>
+                    <td class="sr-col" id="totalSrNo">03</td>
+                    <td class="details-col"><strong>Total Balance Due</strong></td>
                     <td class="amount-col">
                         <div class="calculated-amount" id="totalAmount"><strong>50,000=00</strong></div>
                     </td>
@@ -866,19 +892,31 @@
         // Calculate all totals
         function calculateTotals() {
             const serviceInputs = document.querySelectorAll('.service-row .amount-input');
-            let total = 0;
+            let subtotal = 0;
             
-            // Calculate total from all service items
+            // Calculate subtotal from all service items
             serviceInputs.forEach(input => {
                 let numericValue = getNumericValue(input.value);
-                total += numericValue;
+                subtotal += numericValue;
             });
             
-            // Update total amount
-            document.getElementById('totalAmount').innerHTML = `<strong>${formatToIndianCurrency(total)}</strong>`;
+            const feeReceived = getNumericValue(document.getElementById('feeReceivedAmount').value);
+            const balanceDue = subtotal - feeReceived;
+            
+            // Show/hide subtotal row
+            const subtotalRow = document.getElementById('subtotalRow');
+            if (serviceInputs.length > 1) {
+                subtotalRow.style.display = 'table-row';
+                document.getElementById('subtotalAmount').innerHTML = `<strong>${formatToIndianCurrency(subtotal)}</strong>`;
+            } else {
+                subtotalRow.style.display = 'none';
+            }
+            
+            // Update total amount (balance due)
+            document.getElementById('totalAmount').innerHTML = `<strong>${formatToIndianCurrency(balanceDue)}</strong>`;
             
             // Update amount in words
-            document.getElementById('amountInWords').innerHTML = `<strong>(Rupees: ${numberToWords(Math.floor(total))})</strong>`;
+            document.getElementById('amountInWords').innerHTML = `<strong>(Rupees: ${numberToWords(Math.floor(balanceDue))})</strong>`;
             
             // Update serial numbers
             updateSerialNumbers();
@@ -887,6 +925,8 @@
         // Update serial numbers for all rows
         function updateSerialNumbers() {
             const serviceRows = document.querySelectorAll('.service-row');
+            const subtotalRow = document.getElementById('subtotalRow');
+            const feeReceivedRow = document.querySelector('.fee-received-row');
             const totalRow = document.querySelector('.total-row');
             
             let srNo = 1;
@@ -898,7 +938,14 @@
                 srNo++;
             });
             
-            // Update total row serial number
+            // Update other row serial numbers
+            if (subtotalRow.style.display !== 'none') {
+                document.getElementById('subtotalSrNo').textContent = String(srNo).padStart(2, '0');
+                srNo++;
+            }
+            
+            document.getElementById('feeReceivedSrNo').textContent = String(srNo).padStart(2, '0');
+            srNo++;
             document.getElementById('totalSrNo').textContent = String(srNo).padStart(2, '0');
         }
         
@@ -906,7 +953,7 @@
         function addNewServiceItem() {
             serviceItemCounter++;
             const tableBody = document.getElementById('itemsTableBody');
-            const totalRow = document.querySelector('.total-row');
+            const subtotalRow = document.getElementById('subtotalRow');
             
             const newRow = document.createElement('tr');
             newRow.className = 'service-row';
@@ -923,8 +970,8 @@
                 </td>
             `;
             
-            // Insert before total row
-            tableBody.insertBefore(newRow, totalRow);
+            // Insert before subtotal row
+            tableBody.insertBefore(newRow, subtotalRow);
             calculateTotals();
         }
         
