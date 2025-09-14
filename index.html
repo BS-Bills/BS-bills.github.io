@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BS Graphics Invoice</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 9pt;
+            line-height: 1.1;
+            background: #f5f5f5;
+            padding: 15px;
+        }
+        
+        .invoice-container {
+            max-width: 210mm;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            padding: 15px;
+            page-break-inside: avoid;
+        }
+        
+        .company-header {
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        
+        .company-name {
+            font-family: Arial, sans-serif;
+            font-size: 16pt;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+        
+        .company-tagline {
+            font-family: Arial, sans-serif;
+            font-size: 12pt;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .company-address {
+            font-family: Arial, sans-serif;
+            font-size: 9pt;
+            text-decoration: underline;
+            margin-bottom: 12px;
+            line-height: 1.2;
+        }
+        
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        
+        .invoice-left {
+            flex: 1;
+        }
+        
+        .invoice-type-select {
+            font-family: Arial, sans-serif;
+            font-size: 9pt;
+            padding: 3px 6px;
+            border: 1px solid #333;
+            background: white;
+            margin-bottom: 4px;
+        }
+        
+        .invoice-number-section {
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+            font-size: 9pt;
+        }
+        
+        .invoice-number-input {
+            font-family: Arial, sans-serif;
+            border: 1px solid #666;
+            padding: 2px 4px;
+            background: white;
+            font-size: 9pt;
+            margin-left: 3px;
+        }
+        
+        .invoice-right {
+            flex: 1;
+            text-align: right;
+        }
+        
+        .date-section {
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+            font-size: 9pt;
+        }
+        
+        .date-input {
+            font-family: Arial, sans-serif;
+            border: 1px solid #666;
+            padding: 2px 4px;
+            font-size: 9pt;
+            background: white;
+            margin-left: 4px;
+        }
+        
+        .client-section {
+            margin-bottom: 12px;
+        }
+        
+        .client-label {
+            font-weight: bold;
+            margin-bottom: 4px;
+            font-size: 9pt;
+        }
+        
+        .client-input {
+            font-family: Arial, sans-serif;
+            width: 100%;
+            border: 1px dashed #999;
+            padding: 2px 4px;
+            margin-bottom: 1px;
+            background: #f9f9f9;
+            font-size: 9pt;
+        }
+        
+        .client-name {
+            font-weight: bold;
+        }
+        
+        .gst-section {
+            margin: 6px 0;
+            font-size: 9pt;
+        }
+        
+        .gst-input {
+            font-family: Arial, sans-serif;
+            border: 1px dashed #999;
+            padding: 2px 4px;
+            background: #f9f9f9;
+            width: 80px;
+            font-size: 9pt;
+        }
+        
+        .invoice-title {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            font-weight: bold;
+            font-size: 14pt;
+            margin: 10px 0;
+            text-decoration: underline;
+        }
+        
+        .reference-section {
+            margin-bottom: 10px;
+        }
+        
+        .ref-label {
+            font-weight: bold;
+            margin-bottom: 4px;
+            text-decoration: underline;
+            font-size: 9pt;
+        }
+        
+        .ref-textarea {
+            font-family: Arial, sans-serif;
+            width: 100%;
+            height: 35px;
+            border: 1px dashed #999;
+            padding: 4px;
+            background: #f9f9f9;
+            font-size: 9pt;
+            resize: vertical;
+            font-weight: bold;
+            text-decoration: underline;
+        }
+        
+        .greeting-section {
+            margin-bottom: 8px;
+        }
+        
+        .greeting-input {
+            font-family: Arial, sans-serif;
+            width: 100%;
+            border: 1px dashed #999;
+            padding: 2px 4px;
+            background: #f9f9f9;
+            font-size: 9pt;
+        }
+        
+        .controls-panel {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            padding: 8px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            text-align: center;
+            border: 1px solid #90caf9;
+        }
+        
+        .add-service-btn {
+            font-family: Arial, sans-serif;
+            background: #1976d2;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 9pt;
+            margin: 2px;
+            transition: background 0.3s;
+        }
+        
+        .add-service-btn:hover {
+            background: #1565c0;
+        }
+        
+        .items-table {
+            font-family: Arial, sans-serif;
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+            font-size: 9pt;
+            border: 2px solid #000;
+        }
+        
+        .items-table th,
+        .items-table td {
+            border: 1px solid #000;
+            padding: 4px;
+            vertical-align: top;
+        }
+        
+        .items-table th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+            text-align: center;
+            vertical-align: middle;
+        }
+        
+        .sr-col {
+            width: 15%;
+            text-align: center;
+        }
+        
+        .details-col {
+            width: 55%;
+        }
+        
+        .amount-col {
+            width: 30%;
+            text-align: center;
+        }
+        
+        .service-desc-textarea {
+            font-family: Arial, sans-serif;
+            width: 85%;
+            min-height: 30px;
+            border: 1px dashed #999;
+            padding: 3px 4px;
+            background: #f9f9f9;
+            font-size: 9pt;
+            resize: vertical;
+            overflow: hidden;
+            word-wrap: break-word;
+            line-height: 1.2;
+        }
+        
+        .amount-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .amount-input {
+            font-family: Arial, sans-serif;
+            width: 100px;
+            border: 1px solid #999;
+            padding: 3px 4px;
+            text-align: center;
+            font-size: 9pt;
+            background: white;
+        }
+        
+        .calculated-amount {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 3px 4px;
+            background: #f8f8f8;
+            font-weight: bold;
+        }
+        
+        .remove-btn {
+            font-family: Arial, sans-serif;
+            background: #d32f2f;
+            color: white;
+            border: none;
+            padding: 2px 6px;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 8pt;
+            margin-left: 6px;
+        }
+        
+        .remove-btn:hover {
+            background: #b71c1c;
+        }
+        
+        .service-row:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .total-row {
+            background-color: #e8f5e8;
+            font-weight: bold;
+        }
+        
+        .amount-words-row {
+            background-color: #f3e5f5;
+            text-align: center;
+            font-weight: bold;
+            font-style: italic;
+        }
+        
+        .footer-section {
+            font-family: Arial, sans-serif;
+            margin-top: 12px;
+            font-size: 9pt;
+        }
+        
+        .pan-section {
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        
+        .payment-info {
+            margin-bottom: 10px;
+        }
+        
+        .bank-details {
+            margin-bottom: 12px;
+        }
+        
+        .bank-title {
+            font-weight: bold;
+            text-decoration: underline;
+            margin-bottom: 4px;
+        }
+        
+        .bank-info {
+            font-weight: bold;
+            text-decoration: underline;
+            margin: 2px 0;
+        }
+        
+        .signature-section {
+            margin-top: 15px;
+            text-align: left;
+            min-height: 50px;
+        }
+        
+        .signature-content {
+            display: inline-block;
+        }
+        
+        .company-signature {
+            font-weight: bold;
+            margin-top: 30px;
+        }
+        
+        .print-button {
+            font-family: Arial, sans-serif;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #4caf50, #45a049);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11pt;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .print-button:hover {
+            background: linear-gradient(135deg, #45a049, #3d8b40);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 8px;
+            }
+            
+            .invoice-container {
+                padding: 10px;
+            }
+            
+            .invoice-header {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .invoice-right {
+                text-align: left;
+            }
+            
+            .sr-col {
+                width: 12%;
+            }
+            
+            .details-col {
+                width: 50%;
+            }
+            
+            .amount-col {
+                width: 38%;
+            }
+            
+            .service-desc-textarea {
+                width: 100%;
+                margin-bottom: 4px;
+            }
+            
+            .amount-input {
+                width: 90px;
+            }
+            
+            .print-button {
+                position: relative;
+                bottom: auto;
+                right: auto;
+                margin: 15px auto;
+                display: block;
+            }
+        }
+        
+        /* Print Styles - Strict A4 Fitting */
+        @media print {
+            @page {
+                size: A4;
+                margin: 1.5cm 1cm 1cm 1cm;
+            }
+            
+            body {
+                font-family: Arial, sans-serif;
+                background: white;
+                padding: 0;
+                font-size: 9pt;
+                line-height: 1.1;
+            }
+            
+            .invoice-container {
+                font-family: Arial, sans-serif;
+                max-width: none;
+                width: 100%;
+                box-shadow: none;
+                padding: 0;
+                margin: 0;
+                page-break-inside: avoid;
+            }
+            
+            /* Hide interactive elements */
+            .controls-panel,
+            .print-button,
+            .remove-btn {
+                display: none !important;
+            }
+            
+            /* Hide dropdown and show selected value */
+            .invoice-type-select {
+                display: none !important;
+            }
+            
+            .invoice-number-section::before {
+                content: attr(data-type) " ";
+                font-weight: bold;
+                font-family: Arial, sans-serif;
+            }
+            
+            #invoiceTypeDisplay {
+                display: none !important;
+            }
+            
+            /* Remove all input styling */
+            .invoice-number-input,
+            .date-input,
+            .client-input,
+            .gst-input,
+            .ref-textarea,
+            .greeting-input,
+            .service-desc-textarea,
+            .amount-input {
+                font-family: Arial, sans-serif !important;
+                border: none !important;
+                background: transparent !important;
+                padding: 0 !important;
+                outline: none !important;
+                -webkit-appearance: none !important;
+                -moz-appearance: none !important;
+                appearance: none !important;
+                resize: none !important;
+            }
+            
+            /* Hide date picker calendar icon */
+            .date-input::-webkit-calendar-picker-indicator {
+                display: none !important;
+                -webkit-appearance: none !important;
+            }
+            
+            .date-input::-webkit-inner-spin-button,
+            .date-input::-webkit-outer-spin-button {
+                -webkit-appearance: none !important;
+                display: none !important;
+            }
+            
+            /* Compress spacing for A4 print fit */
+            .company-header {
+                margin-bottom: 8px;
+            }
+            
+            .invoice-header {
+                margin-bottom: 8px;
+            }
+            
+            .client-section {
+                margin-bottom: 8px;
+            }
+            
+            .invoice-title {
+                margin: 6px 0;
+            }
+            
+            .reference-section {
+                margin-bottom: 6px;
+            }
+            
+            .greeting-section {
+                margin-bottom: 6px;
+            }
+            
+            .items-table {
+                margin-bottom: 8px;
+                font-size: 9pt;
+            }
+            
+            .items-table th,
+            .items-table td {
+                padding: 3px;
+            }
+            
+            .footer-section {
+                margin-top: 8px;
+            }
+            
+            .pan-section {
+                margin-bottom: 6px;
+            }
+            
+            .payment-info {
+                margin-bottom: 6px;
+            }
+            
+            .bank-details {
+                margin-bottom: 8px;
+            }
+            
+            .signature-section {
+                margin-top: 10px;
+                min-height: 40px;
+            }
+            
+            .company-signature {
+                margin-top: 20px;
+            }
+            
+            /* Reduce font sizes slightly for print */
+            .company-name {
+                font-size: 14pt;
+            }
+            
+            .company-tagline {
+                font-size: 11pt;
+            }
+            
+            .invoice-title {
+                font-size: 12pt;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <!-- Company Header -->
+        <div class="company-header">
+            <div class="company-name">BS GRAPHICS</div>
+            <div class="company-tagline">DESIGN GRAPHICS SERVICES</div>
+            <div class="company-address">
+                608, GHANSHYAM ENCLAVE, LALJI PADA, LINK ROAD, KANDIVALI-WEST,<br>
+                MUMBAI-400 067
+            </div>
+        </div>
+
+        <!-- Header Section -->
+        <div class="invoice-header">
+            <div class="invoice-left">
+                <select class="invoice-type-select" id="invoiceType" onchange="updateInvoiceTitle()">
+                    <option value="Invoice">Invoice</option>
+                    <option value="Proforma Invoice">Proforma Invoice</option>
+                </select>
+                <div class="invoice-number-section" id="invoiceNumberSection" data-type="Invoice">
+                    <span id="invoiceTypeDisplay">Invoice</span>
+                    <input type="text" class="invoice-number-input" id="invoiceNumber" value="/09/12/2024/DD">
+                </div>
+            </div>
+            <div class="invoice-right">
+                <div class="date-section">
+                    <strong>DATE: -</strong>
+                    <input type="date" class="date-input" id="invoiceDate" value="2024-12-09">
+                </div>
+            </div>
+        </div>
+
+        <!-- Client Details -->
+        <div class="client-section">
+            <div class="client-label">To,</div>
+            <input type="text" class="client-input client-name" value="THE HON. SECRETARY/CHAIRMAN,">
+            <input type="text" class="client-input client-name" value="Dwarkesh Dham chsl.">
+            <input type="text" class="client-input" value="L. M. Road, Near JBCN International School">
+            <input type="text" class="client-input" value="Borivali-West,">
+            <input type="text" class="client-input" value="Mumbai - 400103.">
+            <div class="gst-section">
+                <strong style="text-decoration: underline;">GST NO. :</strong>
+                <input type="text" class="gst-input" value="N.A">
+            </div>
+        </div>
+
+        <!-- Invoice Title -->
+        <div class="invoice-title" id="invoiceTitleDisplay">INVOICE</div>
+
+        <!-- Reference Section -->
+        <div class="reference-section">
+            <div class="ref-label">Ref: -</div>
+            <textarea class="ref-textarea">"Gautam Prabhu Co- Op- Hsg. Soc. Ltd." Located at Haridas Nagar, Shimpoli Road, Borivali (W), Mumbai – 400 092.</textarea>
+        </div>
+
+        <!-- Greeting -->
+        <div class="greeting-section">
+            <input type="text" class="greeting-input" value="Dear Sir / Madam, Following are the details.">
+        </div>
+
+        <!-- Controls Section -->
+        <div class="controls-panel">
+            <button class="add-service-btn" onclick="addNewServiceItem()">+ Add Service Item</button>
+        </div>
+
+        <!-- Items Table -->
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th class="sr-col"><strong>SR.NO.</strong></th>
+                    <th class="details-col"><strong>DETAILS</strong></th>
+                    <th class="amount-col"><strong>AMOUNT (₹)</strong></th>
+                </tr>
+            </thead>
+            <tbody id="itemsTableBody">
+                <tr class="service-row">
+                    <td class="sr-col">01</td>
+                    <td class="details-col">
+                        <textarea class="service-desc-textarea" oninput="autoResize(this)">Part payment towards Professional Charges as per our offer letter dated 20/12/2024</textarea>
+                    </td>
+                    <td class="amount-col">
+                        <div class="amount-wrapper">
+                            <input type="text" class="amount-input" value="50,000=00" onchange="formatAmountInput(this); calculateTotals()" oninput="formatAmountInput(this)">
+                        </div>
+                    </td>
+                </tr>
+                <tr class="total-row">
+                    <td class="sr-col" id="totalSrNo">02</td>
+                    <td class="details-col"><strong>Total</strong></td>
+                    <td class="amount-col">
+                        <div class="calculated-amount" id="totalAmount"><strong>50,000=00</strong></div>
+                    </td>
+                </tr>
+                <tr class="amount-words-row">
+                    <td colspan="3" id="amountInWords">
+                        <strong>(Rupees: Fifty Thousand Only)</strong>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Footer Section -->
+        <div class="footer-section">
+            <div class="pan-section">
+                <strong>PAN No.: -</strong> BHMPS1514F
+            </div>
+            
+            <div class="payment-info">
+                <p>Kindly prepare cheque in the name of <strong style="text-decoration: underline;">BS GRAPHICS</strong></p>
+                
+                <div class="bank-details">
+                    <div class="bank-title">RTGS Details :</div>
+                    <div class="bank-info">B S Graphics -- A/C.No. 001012100024203</div>
+                    <div class="bank-info">Bharat Co-op Bank, Dahisar-East</div>
+                    <div class="bank-info">IFS Code : BCBM0000011</div>
+                </div>
+            </div>
+            
+            <div class="signature-section">
+                <div class="signature-content">
+                    <strong>With regards</strong><br><br>
+                    <strong>For,</strong>
+                    <div class="company-signature">
+                        <strong>For M/s. BS GRAPHICS</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Print Button -->
+    <button class="print-button" onclick="printInvoice()">🖨️ Print Invoice</button>
+
+    <script>
+        let serviceItemCounter = 1;
+        
+        // Format amount to Indian currency format (using = instead of .)
+        function formatToIndianCurrency(amount) {
+            if (isNaN(amount) || amount === '' || amount === null) return '0=00';
+            
+            // Convert to number and format to 2 decimal places
+            let num = parseFloat(amount).toFixed(2);
+            
+            // Split into integer and decimal parts
+            let parts = num.toString().split('.');
+            let integerPart = parts[0];
+            let decimalPart = parts[1] || '00';
+            
+            // Apply Indian numbering system (lakhs and crores)
+            let lastThree = integerPart.substring(integerPart.length - 3);
+            let otherNumbers = integerPart.substring(0, integerPart.length - 3);
+            
+            if (otherNumbers !== '') {
+                lastThree = ',' + lastThree;
+            }
+            
+            let result = otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ',') + lastThree;
+            
+            return result + '=' + decimalPart;
+        }
+        
+        // Format amount input with Indian currency format (using = instead of .)
+        function formatAmountInput(input) {
+            // Remove all non-numeric characters except decimal point and =
+            let value = input.value.replace(/[^\d.=]/g, '');
+            
+            // Replace = with . for calculation
+            value = value.replace(/=/g, '.');
+            
+            // Handle multiple decimal points
+            let decimalCount = (value.match(/\./g) || []).length;
+            if (decimalCount > 1) {
+                let parts = value.split('.');
+                value = parts[0] + '.' + parts.slice(1).join('');
+            }
+            
+            // Limit decimal places to 2
+            if (value.includes('.')) {
+                let parts = value.split('.');
+                if (parts[1] && parts[1].length > 2) {
+                    parts[1] = parts[1].substring(0, 2);
+                }
+                value = parts[0] + '.' + (parts[1] || '00');
+            }
+            
+            // Format the number
+            if (value !== '' && !isNaN(parseFloat(value))) {
+                input.value = formatToIndianCurrency(parseFloat(value));
+            } else if (value === '' || value === '0' || value === '0.') {
+                input.value = '0=00';
+            }
+        }
+        
+        // Get numeric value from formatted Indian currency
+        function getNumericValue(formattedValue) {
+            if (!formattedValue || formattedValue === '') return 0;
+            
+            // Remove commas and replace = with .
+            let cleanValue = formattedValue.replace(/,/g, '').replace(/=/g, '.');
+            
+            // Remove any remaining non-numeric characters except decimal point
+            cleanValue = cleanValue.replace(/[^\d.]/g, '');
+            
+            return parseFloat(cleanValue) || 0;
+        }
+        
+        // Auto-resize textarea based on content
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.max(30, textarea.scrollHeight) + 'px';
+        }
+        
+        // Convert number to words (Indian format)
+        function numberToWords(num) {
+            if (num === 0) return "Zero";
+            
+            const ones = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", 
+                         "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
+            const tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+            
+            function convertHundreds(n) {
+                let result = "";
+                if (n > 99) {
+                    result += ones[Math.floor(n / 100)] + " Hundred ";
+                    n %= 100;
+                }
+                if (n > 19) {
+                    result += tens[Math.floor(n / 10)] + " ";
+                    n %= 10;
+                }
+                if (n > 0) {
+                    result += ones[n] + " ";
+                }
+                return result;
+            }
+            
+            if (num < 0) return "Negative " + numberToWords(-num);
+            
+            let result = "";
+            
+            if (num >= 10000000) {
+                result = convertHundreds(Math.floor(num / 10000000)) + "Crore ";
+                num %= 10000000;
+            }
+            
+            if (num >= 100000) {
+                result += convertHundreds(Math.floor(num / 100000)) + "Lakh ";
+                num %= 100000;
+            }
+            
+            if (num >= 1000) {
+                result += convertHundreds(Math.floor(num / 1000)) + "Thousand ";
+                num %= 1000;
+            }
+            
+            if (num > 0) {
+                result += convertHundreds(num);
+            }
+            
+            return result.trim() + " Only";
+        }
+        
+        // Calculate all totals
+        function calculateTotals() {
+            const serviceInputs = document.querySelectorAll('.service-row .amount-input');
+            let total = 0;
+            
+            // Calculate total from all service items
+            serviceInputs.forEach(input => {
+                let numericValue = getNumericValue(input.value);
+                total += numericValue;
+            });
+            
+            // Update total amount
+            document.getElementById('totalAmount').innerHTML = `<strong>${formatToIndianCurrency(total)}</strong>`;
+            
+            // Update amount in words
+            document.getElementById('amountInWords').innerHTML = `<strong>(Rupees: ${numberToWords(Math.floor(total))})</strong>`;
+            
+            // Update serial numbers
+            updateSerialNumbers();
+        }
+        
+        // Update serial numbers for all rows
+        function updateSerialNumbers() {
+            const serviceRows = document.querySelectorAll('.service-row');
+            const totalRow = document.querySelector('.total-row');
+            
+            let srNo = 1;
+            
+            // Update service row serial numbers
+            serviceRows.forEach(row => {
+                let srNoCell = row.querySelector('.sr-col');
+                srNoCell.textContent = String(srNo).padStart(2, '0');
+                srNo++;
+            });
+            
+            // Update total row serial number
+            document.getElementById('totalSrNo').textContent = String(srNo).padStart(2, '0');
+        }
+        
+        // Add new service item
+        function addNewServiceItem() {
+            serviceItemCounter++;
+            const tableBody = document.getElementById('itemsTableBody');
+            const totalRow = document.querySelector('.total-row');
+            
+            const newRow = document.createElement('tr');
+            newRow.className = 'service-row';
+            newRow.innerHTML = `
+                <td class="sr-col">${String(serviceItemCounter).padStart(2, '0')}</td>
+                <td class="details-col">
+                    <textarea class="service-desc-textarea" oninput="autoResize(this)" placeholder="Enter service details..."></textarea>
+                    <button class="remove-btn" onclick="removeServiceItem(this)">Remove</button>
+                </td>
+                <td class="amount-col">
+                    <div class="amount-wrapper">
+                        <input type="text" class="amount-input" value="0=00" onchange="formatAmountInput(this); calculateTotals()" oninput="formatAmountInput(this)">
+                    </div>
+                </td>
+            `;
+            
+            // Insert before total row
+            tableBody.insertBefore(newRow, totalRow);
+            calculateTotals();
+        }
+        
+        // Remove service item
+        function removeServiceItem(button) {
+            const row = button.closest('.service-row');
+            row.remove();
+            calculateTotals();
+        }
+        
+        // Update invoice title when type changes
+        function updateInvoiceTitle() {
+            const invoiceType = document.getElementById('invoiceType').value;
+            document.getElementById('invoiceTypeDisplay').textContent = invoiceType;
+            document.getElementById('invoiceTitleDisplay').textContent = invoiceType.toUpperCase();
+            document.getElementById('invoiceNumberSection').setAttribute('data-type', invoiceType);
+        }
+        
+        // Print invoice
+        function printInvoice() {
+            window.print();
+        }
+        
+        // Initialize calculations on page load
+        window.addEventListener('load', function() {
+            calculateTotals();
+            
+            // Format existing amount inputs
+            const amountInputs = document.querySelectorAll('.amount-input');
+            amountInputs.forEach(input => {
+                formatAmountInput(input);
+            });
+        });
+    </script>
+</body>
+</html>
